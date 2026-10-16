@@ -4,6 +4,9 @@ Ejecutar:  streamlit run app.py     (desde la carpeta dashboard/streamlit)
 
 PARA MODIFICAR EN VIVO: casi todo lo que la profesora puede pedir está en la
 sección 1 (CONFIGURACIÓN): títulos, umbrales, colores y rangos por defecto.
+
+Etapa 3: se agregó la pestaña "Finanzas" (sección 6). Sus títulos y umbrales también
+están en la sección 1 (CONFIGURACIÓN).
 """
 from pathlib import Path
 
@@ -38,6 +41,24 @@ RANGO_CALIFICACION_DEFECTO = (0.0, 10.0)
 # Colores por tipo de contenido
 COLORES_TIPO = {"Movie": "#E50914", "TV Show": "#1F77B4"}
 ESCALA_CONTINUA = "Viridis"
+
+# ── Bloque financiero (Etapa 3) ──────────────────────────────────────────────
+TITULO_FIN_DISPERSION = "Presupuesto vs ingresos"
+TITULO_FIN_TOP_INGRESOS = "Top 10 películas por ingresos"
+TITULO_FIN_EXITO = "Éxito con presupuesto reducido"
+
+# Nota visible obligatoria: se completa con el conteo en vivo según los filtros
+NOTA_FINANCIERA = ("Este análisis financiero solo incluye películas con presupuesto e ingresos "
+                   "informados: {n:,} de {total:,} películas filtradas ({pct:.1f}%).")
+
+# "Presupuesto reducido" = percentil más bajo del presupuesto (sobre todas las películas con datos)
+PERCENTIL_PRESUPUESTO_REDUCIDO = 0.25
+ROI_MINIMO_EXITO = 3.0                 # "éxito" = ingresos de al menos 3 veces el presupuesto...
+INGRESOS_MINIMOS_EXITO = 10_000_000    # ...e ingresos de al menos USD 10 M (evita premiar montos mínimos)
+
+RECUPERA = "Recuperó el presupuesto (ROI ≥ 1)"
+NO_RECUPERA = "No recuperó el presupuesto (ROI < 1)"
+COLORES_RECUPERO = {RECUPERA: "#2CA02C", NO_RECUPERA: "#FF7F0E"}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 2. CARGA Y PREPARACIÓN DE DATOS
@@ -79,10 +100,9 @@ def cargar_datos() -> pd.DataFrame:
     peliculas = pd.read_csv(RUTA_DATOS / "netflix_movies_cleaned.csv")
     series = pd.read_csv(RUTA_DATOS / "netflix_tv_cleaned.csv")
     df = pd.concat([peliculas, series], ignore_index=True)
-    # Dejamos fuera las columnas financieras: son del bloque de la Etapa 3.
-    return df.drop(columns=[c for c in df.columns if c in
-                            ("budget", "revenue", "budget_valido", "revenue_valido",
-                             "tiene_datos_financieros", "ROI")])
+    # Etapa 3: ya no se descartan las columnas financieras (budget_valido, revenue_valido,
+    # tiene_datos_financieros, ROI): las usa la pestaña Finanzas. Las demás pestañas no las tocan.
+    return df
 
 
 def separar(df: pd.DataFrame, columna: str) -> pd.DataFrame:
@@ -168,8 +188,8 @@ k2.metric("Popularidad promedio", f"{df['popularity'].mean():,.1f}")
 k3.metric("Calificación promedio", f"{df_votado['vote_average'].mean():.2f}" if len(df_votado) else "—")
 k4.metric("Títulos con votos", f"{len(df_votado):,}")
 
-tab1, tab2, tab3, tab4 = st.tabs(
-    [" Popularidad y calificación", " Géneros", " Rankings", " Países"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    [" Popularidad y calificación", " Géneros", " Rankings", " Países", "💰 Finanzas"])
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 5. VISUALIZACIONES
@@ -272,3 +292,112 @@ with tab4:
         st.dataframe(mapa[["country", "titulos", "valor"]].sort_values("valor", ascending=False)
                      .rename(columns={"country": "País", "titulos": "Títulos", "valor": metrica}),
                      hide_index=True, width="stretch")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. BLOQUE FINANCIERO (Etapa 3) — solo películas con presupuesto e ingresos confiables
+# ══════════════════════════════════════════════════════════════════════════════
+def formato_usd(x: float) -> str:
+    """Monto en USD en formato corto: $35.7 M, $367.4 mil M."""
+    if abs(x) >= 1e9:
+        return f"${x / 1e9:,.1f} mil M"
+    if abs(x) >= 1e6:
+        return f"${x / 1e6:,.1f} M"
+    return f"${x:,.0f}"
+
+
+with tab5:
+    n_peliculas = int((df["type"] == "Movie").sum())
+    # Piso de USD 1.000 en presupuesto e ingresos aplicado en la Entrega 1 (ya viene en el CSV)
+    df_fin = df[df["tiene_datos_financieros"] == True].copy()  # noqa: E712
+
+    if n_peliculas == 0:
+        st.info("Los datos financieros existen solo para películas. Incluye \"Movie\" en el "
+                "filtro de tipo de contenido para ver este análisis.")
+    else:
+        # Nota visible obligatoria (conteo en vivo)
+        st.info(NOTA_FINANCIERA.format(n=len(df_fin), total=n_peliculas,
+                                       pct=len(df_fin) / n_peliculas * 100))
+        if df_fin.empty:
+            st.warning("Ninguna película de los filtros actuales tiene presupuesto e ingresos "
+                       "informados. Amplía los filtros.")
+        else:
+            df_fin["etiqueta"] = df_fin["title"] + " (" + df_fin["release_year"].astype(str) + ")"
+            df_fin["recupero"] = df_fin["ROI"].ge(1).map({True: RECUPERA, False: NO_RECUPERA})
+
+            # KPIs financieros
+            total_presupuesto = df_fin["budget_valido"].sum()
+            total_ingresos = df_fin["revenue_valido"].sum()
+            roi_aproximado = total_ingresos / total_presupuesto
+            f1, f2, f3, f4 = st.columns(4)
+            f1.metric("Presupuesto promedio", formato_usd(df_fin["budget_valido"].mean()))
+            f2.metric("Total ingresos", formato_usd(total_ingresos))
+            f3.metric("Total presupuesto", formato_usd(total_presupuesto))
+            f4.metric("ROI aproximado", f"{roi_aproximado:.2f}x")
+            sin_recuperar = int((df_fin["ROI"] < 1).sum())
+            st.caption(f"ROI aproximado = total de ingresos ÷ total de presupuesto. "
+                       f"Mediana del ROI por película: {df_fin['ROI'].median():.2f}x. "
+                       f"{sin_recuperar:,} de {len(df_fin):,} películas "
+                       f"({sin_recuperar / len(df_fin) * 100:.1f}%) no recuperaron su presupuesto (ROI < 1).")
+
+            # Dispersión presupuesto vs ingresos (ejes logarítmicos + línea de equilibrio)
+            fig = px.scatter(
+                df_fin, x="budget_valido", y="revenue_valido",
+                color="recupero", color_discrete_map=COLORES_RECUPERO,
+                log_x=True, log_y=True, opacity=0.6,
+                hover_name="etiqueta", hover_data={"ROI": ":.2f", "recupero": False},
+                labels={"budget_valido": "Presupuesto (USD, escala log)",
+                        "revenue_valido": "Ingresos (USD, escala log)", "recupero": ""},
+                title=TITULO_FIN_DISPERSION,
+            )
+            lim_min = float(min(df_fin["budget_valido"].min(), df_fin["revenue_valido"].min()))
+            lim_max = float(max(df_fin["budget_valido"].max(), df_fin["revenue_valido"].max()))
+            fig.add_scatter(x=[lim_min, lim_max], y=[lim_min, lim_max], mode="lines",
+                            name="Ingresos = presupuesto", line=dict(dash="dash", color="gray"),
+                            hoverinfo="skip")
+            st.plotly_chart(fig, width="stretch")
+            st.caption("Sobre la línea punteada: la película ganó más de lo que costó. "
+                       "Debajo: no recuperó el presupuesto.")
+
+            # Top películas por ingresos
+            top_ingresos = df_fin.nlargest(TOP_N, "revenue_valido")
+            fig = px.bar(top_ingresos.sort_values("revenue_valido"), x="revenue_valido", y="etiqueta",
+                         orientation="h", color="ROI", color_continuous_scale=ESCALA_CONTINUA,
+                         hover_data={"budget_valido": ":,.0f", "ROI": ":.2f"},
+                         labels={"revenue_valido": "Ingresos (USD)", "etiqueta": "",
+                                 "budget_valido": "Presupuesto (USD)"},
+                         title=TITULO_FIN_TOP_INGRESOS)
+            st.plotly_chart(fig, width="stretch")
+
+            # ¿Qué películas fueron exitosas con presupuestos reducidos?
+            # El límite se calcula sobre TODAS las películas con datos (no cambia al filtrar).
+            fin_global = datos[datos["tiene_datos_financieros"] == True]  # noqa: E712
+            limite_presupuesto = fin_global["budget_valido"].quantile(PERCENTIL_PRESUPUESTO_REDUCIDO)
+            reducidos = df_fin[df_fin["budget_valido"] <= limite_presupuesto]
+            exitosas = reducidos[(reducidos["ROI"] >= ROI_MINIMO_EXITO)
+                                 & (reducidos["revenue_valido"] >= INGRESOS_MINIMOS_EXITO)]
+            st.caption(f"Presupuesto reducido = hasta {formato_usd(limite_presupuesto)} "
+                       f"(el {PERCENTIL_PRESUPUESTO_REDUCIDO:.0%} más bajo de las películas con datos financieros). "
+                       f"Éxito = ROI de al menos {ROI_MINIMO_EXITO:g}x e ingresos de al menos "
+                       f"{formato_usd(INGRESOS_MINIMOS_EXITO)}. En los filtros actuales: "
+                       f"{len(exitosas):,} de {len(reducidos):,} películas con presupuesto reducido.")
+            if exitosas.empty:
+                st.info("Ninguna película con presupuesto reducido cumple el criterio de éxito "
+                        "con los filtros actuales.")
+            else:
+                top_exito = exitosas.nlargest(TOP_N, "ROI")
+                fig = px.bar(top_exito.sort_values("ROI"), x="ROI", y="etiqueta", orientation="h",
+                             color="revenue_valido", color_continuous_scale=ESCALA_CONTINUA,
+                             hover_data={"budget_valido": ":,.0f", "revenue_valido": ":,.0f"},
+                             labels={"ROI": "ROI (ingresos ÷ presupuesto)", "etiqueta": "",
+                                     "revenue_valido": "Ingresos (USD)",
+                                     "budget_valido": "Presupuesto (USD)"},
+                             title=f"{TITULO_FIN_EXITO} (top {TOP_N} por ROI)")
+                st.plotly_chart(fig, width="stretch")
+                with st.expander("Ver todas las películas exitosas con presupuesto reducido"):
+                    st.dataframe(
+                        exitosas.sort_values("ROI", ascending=False)
+                        [["title", "release_year", "budget_valido", "revenue_valido", "ROI"]]
+                        .rename(columns={"title": "Título", "release_year": "Año",
+                                         "budget_valido": "Presupuesto (USD)",
+                                         "revenue_valido": "Ingresos (USD)"}),
+                        hide_index=True, width="stretch")
