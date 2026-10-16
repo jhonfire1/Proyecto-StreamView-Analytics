@@ -89,7 +89,7 @@ Si `streamlit` no se reconoce como comando, usar siempre `python -m streamlit`. 
 
 **Dashboard Ejecutivo (Power BI):** abrir el archivo `.pbix` de `dashboard/powerbi/` con Power BI Desktop (solo Windows). Si Power BI no encuentra los CSV en otro computador: *Inicio → Transformar datos → Configuración de origen de datos → Cambiar origen*, y apuntar a `data/processed/`.
 
-Para modificar títulos, umbrales, filtros o fechas en vivo, ver [`dashboard/GUIA_MODIFICACION_EN_VIVO.md`](dashboard/GUIA_MODIFICACION_EN_VIVO.md).
+
 
 ---
 
