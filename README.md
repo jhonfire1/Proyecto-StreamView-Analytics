@@ -2,10 +2,6 @@
 
 Solución de Visual Analytics (dashboards interactivos + narrativas visuales + productos gráficos) que apoya decisiones estratégicas sobre el catálogo audiovisual de StreamView Analytics. Proyecto de la asignatura **ADY1104 Visualización de Datos** (Duoc UC).
 
-Este repositorio contiene dos entregas del caso semestral:
-
-- **Entrega 1:** limpieza y preparación de datos, reglas de negocio, primeras visualizaciones e informe ejecutivo.
-- **Entrega 2:** dos dashboards interactivos, uno por audiencia, construidos con herramientas distintas sobre los mismos datos limpios.
 
 ---
 
@@ -78,16 +74,25 @@ Preguntas de negocio que responde:
 
 ## Cómo ejecutar
 
-**Dashboard Analítico (Streamlit)**, desde la raíz del repositorio:
+**Dashboard Analítico (Streamlit)**, desde la raíz del repositorio (los comandos funcionan igual en Windows, macOS y Linux):
 
-```powershell
-pip install -r dashboard\streamlit\requirements.txt
-python -m streamlit run dashboard\streamlit\app.py
+```bash
+pip install -r requirements.txt
+python -m streamlit run dashboard/streamlit/app.py
 ```
 
 Si `streamlit` no se reconoce como comando, usar siempre `python -m streamlit`. Si el puerto 8501 está ocupado, Streamlit usa el 8502 (la terminal indica la URL).
 
-**Dashboard Ejecutivo (Power BI):** abrir el archivo `.pbix` de `dashboard/powerbi/` con Power BI Desktop (solo Windows). Si Power BI no encuentra los CSV en otro computador: *Inicio → Transformar datos → Configuración de origen de datos → Cambiar origen*, y apuntar a `data/processed/`.
+**Notebooks** (limpieza, visualización y storytelling), en este orden y abriéndolos desde la carpeta `notebooks/`:
+
+```bash
+cd notebooks
+jupyter notebook          # abrir y ejecutar 01_limpieza_datos, 02_Visualizacion, 03_storytelling
+```
+
+El notebook 01 genera los CSV de `data/processed/`; los notebooks 02 y 03 y el dashboard solo los leen.
+
+**Dashboard Ejecutivo (Power BI):** abrir el archivo `DashBoard_Ejecutivo.pbix` de `dashboard/PowerBi/` con Power BI Desktop (solo Windows). Si Power BI no encuentra los CSV en otro computador: *Inicio → Transformar datos → Configuración de origen de datos → Cambiar origen*, y apuntar a `data/processed/`.
 
 
 
@@ -98,14 +103,18 @@ Si `streamlit` no se reconoce como comando, usar siempre `python -m streamlit`. 
 ```
 Proyecto-StreamView-Analytics/
 ├── README.md
+├── requirements.txt         # dependencias de todo el proyecto
 ├── data/
 │   ├── raw/                 # CSV originales, sin modificar
 │   └── processed/           # CSV limpios (fuente única de los dashboards)
-├── notebooks/               # limpieza y auditoría de datos (Entrega 1)
+├── notebooks/               # 01 limpieza · 02 visualización · 03 storytelling
+├── src/
+│   └── utils.py             # código compartido: carga de datos, paleta de colores, ISO-3, formatos
 ├── dashboard/
-│   ├── powerbi/             # Dashboard Ejecutivo (.pbix)
-│   ├── streamlit/           # Dashboard Analítico: app.py, requirements.txt, README_streamlit.md
-│   └── GUIA_MODIFICACION_EN_VIVO.md
+│   ├── PowerBi/             # Dashboard Ejecutivo (DashBoard_Ejecutivo.pbix)
+│   └── streamlit/           # Dashboard Analítico: app.py, requirements.txt
+├── docs/
+│   └── informe/             # secciones del informe ejecutivo (borradores en Markdown)
 └── images/                  # capturas de los dashboards
 ```
 
@@ -125,6 +134,15 @@ Cada rama se desarrolló con commits descriptivos y se fusionó a `main`.
 
 ---
 
+## Paleta de colores (única para todo el proyecto)
+
+| Elemento | Color | HEX |
+|---|---|---|
+| Películas | Rojo | `#E50914` |
+| Series | Azul | `#1F77B4` |
+
+Definida en `src/utils.py` y usada en los notebooks y en Streamlit. **En Power BI deben usarse estos mismos códigos HEX.**
+
 ## Decisiones y limitaciones conocidas
 
 - **Clasificación etaria:** no existe en los datos reales (la columna que parecía serlo era un duplicado de `vote_average`). El filtro pedido para el Dashboard Analítico se omitió a propósito y así se informa dentro del dashboard.
@@ -133,6 +151,7 @@ Cada rama se desarrolló con commits descriptivos y se fusionó a `main`.
 - **Presupuesto reducido y éxito:** "presupuesto reducido" es el 25% más bajo del presupuesto entre todas las películas con datos; "éxito" exige ROI de al menos 3 e ingresos de al menos USD 10 millones, para no premiar casos con montos ínfimos. Ambos criterios son editables en la configuración de `app.py`.
 - **Calificación 0 con 0 votos:** se interpreta como "sin votos", no como "mala". Se excluye de los promedios y de la dispersión del Dashboard Analítico (4.560 títulos).
 - **Columnas con varios valores** (`country`, `genres`, `cast`, `director`): en Streamlit se separan fila por fila y "Sin dato" se excluye de los rankings.
+- **Muestra estratificada:** el conjunto de datos tiene exactamente 1.000 películas y 1.000 series por año de estreno (2010-2025; 991 series en 2025 tras eliminar duplicados). Los conteos por año no reflejan el tamaño real del catálogo y el gráfico de evolución temporal es plano por construcción.
 - **Mapa de Streamlit:** usa un diccionario de códigos ISO-3 (cubre los países con 5 o más títulos). Un país que no esté en el diccionario no se dibuja.
 
 
@@ -140,6 +159,8 @@ Cada rama se desarrolló con commits descriptivos y se fusionó a `main`.
 
 ## Equipo
 
-- Etapa 1 — Dashboard Ejecutivo (Power BI)
-- Etapa 2 — Dashboard Analítico (Streamlit)
-- Etapa 3 — Bloque financiero, integración y documentación
+| Persona | Nombre | Rol |
+|---|---|---|
+| 1 | _[Benjamin Barrera]_ | 
+| 2 | _[Patrick Gonzalez]_ | 
+| 3 | _[Juan Villegas]_ | 
