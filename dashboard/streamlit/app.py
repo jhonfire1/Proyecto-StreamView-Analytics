@@ -1,18 +1,16 @@
-"""
-StreamView Analytics — Dashboard Analítico (Etapa 2, sin bloque financiero)
-Ejecutar:  streamlit run app.py     (desde la carpeta dashboard/streamlit)
 
-PARA MODIFICAR EN VIVO: casi todo lo que la profesora puede pedir está en la
-sección 1 (CONFIGURACIÓN): títulos, umbrales, colores y rangos por defecto.
-
-Etapa 3: se agregó la pestaña "Finanzas" (sección 6). Sus títulos y umbrales también
-están en la sección 1 (CONFIGURACIÓN).
-"""
+import sys
 from pathlib import Path
+
+# Permite importar el paquete `src` (en la raíz del repo) al ejecutar `streamlit run`.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+
+from src.utils import COLORES_TIPO, ISO3, formato_usd, separar
+from src.utils import cargar_datos as _cargar_datos
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 1. CONFIGURACIÓN  (editar aquí: títulos, umbrales, colores)
@@ -38,8 +36,8 @@ TOP_N = 10                  # largo de los rankings
 # Filtro de calificación (valor por defecto del slider)
 RANGO_CALIFICACION_DEFECTO = (0.0, 10.0)
 
-# Colores por tipo de contenido
-COLORES_TIPO = {"Movie": "#E50914", "TV Show": "#1F77B4"}
+# Colores por tipo de contenido: la paleta única vive en src/utils.py (COLORES_TIPO),
+# importada arriba, para que notebooks, Streamlit y Power BI usen los mismos colores.
 ESCALA_CONTINUA = "Viridis"
 
 # ── Bloque financiero (Etapa 3) ──────────────────────────────────────────────
@@ -63,53 +61,9 @@ COLORES_RECUPERO = {RECUPERA: "#2CA02C", NO_RECUPERA: "#FF7F0E"}
 # ══════════════════════════════════════════════════════════════════════════════
 # 2. CARGA Y PREPARACIÓN DE DATOS
 # ══════════════════════════════════════════════════════════════════════════════
-RUTA_DATOS = Path(__file__).resolve().parents[2] / "data" / "processed"
-SIN_DATO = "Sin dato"
-
-# Nombre del país (tal como viene en los datos) -> código ISO-3 para el mapa
-ISO3 = {
-    "United States of America": "USA", "Japan": "JPN", "United Kingdom": "GBR", "China": "CHN",
-    "South Korea": "KOR", "France": "FRA", "Canada": "CAN", "Germany": "DEU", "India": "IND",
-    "Spain": "ESP", "Belgium": "BEL", "Italy": "ITA", "Mexico": "MEX", "Philippines": "PHL",
-    "Hong Kong": "HKG", "Australia": "AUS", "Brazil": "BRA", "Russia": "RUS", "Turkey": "TUR",
-    "Sweden": "SWE", "Thailand": "THA", "Denmark": "DNK", "Netherlands": "NLD", "Poland": "POL",
-    "Ireland": "IRL", "Taiwan": "TWN", "Norway": "NOR", "Egypt": "EGY", "Argentina": "ARG",
-    "Chile": "CHL", "Czech Republic": "CZE", "Switzerland": "CHE", "Colombia": "COL",
-    "Austria": "AUT", "South Africa": "ZAF", "Finland": "FIN", "Portugal": "PRT",
-    "Indonesia": "IDN", "Israel": "ISR", "Greece": "GRC", "New Zealand": "NZL", "Hungary": "HUN",
-    "Bulgaria": "BGR", "Luxembourg": "LUX", "Pakistan": "PAK", "Malaysia": "MYS", "Romania": "ROU",
-    "Ukraine": "UKR", "Singapore": "SGP", "Serbia": "SRB", "United Arab Emirates": "ARE",
-    "Iceland": "ISL", "Slovakia": "SVK", "Iran": "IRN", "Venezuela": "VEN", "Lebanon": "LBN",
-    "Morocco": "MAR", "Croatia": "HRV", "Saudi Arabia": "SAU", "Estonia": "EST",
-    "Lithuania": "LTU", "Vietnam": "VNM", "Syrian Arab Republic": "SYR", "Peru": "PER",
-    "Uruguay": "URY", "Puerto Rico": "PRI", "Georgia": "GEO", "Iraq": "IRQ", "Latvia": "LVA",
-    "Malta": "MLT", "Qatar": "QAT", "Slovenia": "SVN", "Dominican Republic": "DOM", "Cuba": "CUB",
-    "Nigeria": "NGA", "Tunisia": "TUN", "Jordan": "JOR", "Cambodia": "KHM", "Kazakhstan": "KAZ",
-    "Cyprus": "CYP", "Kuwait": "KWT", "Bosnia and Herzegovina": "BIH", "Macedonia": "MKD",
-    "Guatemala": "GTM", "Sri Lanka": "LKA", "Mongolia": "MNG", "Bangladesh": "BGD",
-    "Algeria": "DZA", "Kenya": "KEN", "Ecuador": "ECU", "Bolivia": "BOL", "Panama": "PAN",
-    "Costa Rica": "CRI", "Paraguay": "PRY", "Belarus": "BLR", "Albania": "ALB", "Armenia": "ARM",
-    "Azerbaijan": "AZE", "Ghana": "GHA", "Ethiopia": "ETH", "Nepal": "NPL", "Montenegro": "MNE",
-    "Jamaica": "JAM", "Palestinian Territory": "PSE", "Afghanistan": "AFG", "Senegal": "SEN",
-}
-
-
-@st.cache_data
-def cargar_datos() -> pd.DataFrame:
-    """Une películas y series ya limpias (Entrega 1) en un solo DataFrame."""
-    peliculas = pd.read_csv(RUTA_DATOS / "netflix_movies_cleaned.csv")
-    series = pd.read_csv(RUTA_DATOS / "netflix_tv_cleaned.csv")
-    df = pd.concat([peliculas, series], ignore_index=True)
-    # Etapa 3: ya no se descartan las columnas financieras (budget_valido, revenue_valido,
-    # tiene_datos_financieros, ROI): las usa la pestaña Finanzas. Las demás pestañas no las tocan.
-    return df
-
-
-def separar(df: pd.DataFrame, columna: str) -> pd.DataFrame:
-    """Una fila por valor individual de una columna multivalor ('A, B' -> 2 filas)."""
-    out = df.assign(**{columna: df[columna].str.split(",")}).explode(columna)
-    out[columna] = out[columna].str.strip()
-    return out[out[columna].notna() & (out[columna] != "") & (out[columna] != SIN_DATO)]
+# Las funciones de datos (cargar_datos, separar, formato_usd), el diccionario ISO3 y la paleta
+# están en src/utils.py y se comparten con los notebooks. Aquí solo se agrega el caché de Streamlit.
+cargar_datos = st.cache_data(_cargar_datos)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -296,15 +250,6 @@ with tab4:
 # ══════════════════════════════════════════════════════════════════════════════
 # 6. BLOQUE FINANCIERO (Etapa 3) — solo películas con presupuesto e ingresos confiables
 # ══════════════════════════════════════════════════════════════════════════════
-def formato_usd(x: float) -> str:
-    """Monto en USD en formato corto: $35.7 M, $367.4 mil M."""
-    if abs(x) >= 1e9:
-        return f"${x / 1e9:,.1f} mil M"
-    if abs(x) >= 1e6:
-        return f"${x / 1e6:,.1f} M"
-    return f"${x:,.0f}"
-
-
 with tab5:
     n_peliculas = int((df["type"] == "Movie").sum())
     # Piso de USD 1.000 en presupuesto e ingresos aplicado en la Entrega 1 (ya viene en el CSV)
