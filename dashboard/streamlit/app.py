@@ -72,7 +72,12 @@ cargar_datos = st.cache_data(_cargar_datos)
 st.set_page_config(page_title=TITULO_APP, page_icon="🎬", layout="wide")
 st.title(TITULO_APP)
 st.caption("Gerencia de Contenidos y Adquisición · datos limpios de la Entrega 1")
-
+st.info(
+    "Alcance de los indicadores: la popularidad corresponde a un índice "
+    "relativo de TMDB; no representa reproducciones, engagement ni "
+    "retención de usuarios en StreamView. La calificación debe "
+    "interpretarse junto con la cantidad de votos recibidos."
+)
 datos = cargar_datos()
 
 st.sidebar.header("Filtros")
@@ -109,6 +114,18 @@ df = datos[
 ]
 if idiomas_sel:
     df = df[df["language"].isin(idiomas_sel)]
+
+
+
+def resumen_personas(base: pd.DataFrame, columna: str) -> pd.DataFrame:
+    """Cuenta títulos y calcula calificación solo sobre registros con votos."""
+    trabajo = base.copy()
+    trabajo["calificacion_valida"] = trabajo["vote_average"].where(trabajo["vote_count"].gt(0))
+    return (trabajo.groupby(columna)
+            .agg(titulos=("title", "count"),
+                 titulos_evaluados=("calificacion_valida", "count"),
+                 calificacion=("calificacion_valida", "mean"))
+            .reset_index())
 
 
 def contiene_alguno(serie: pd.Series, elegidos: list) -> pd.Series:
@@ -160,9 +177,15 @@ with tab1:
         title=TITULO_SCATTER,
     )
     st.plotly_chart(fig, width="stretch")
-    corr = df_votado["vote_average"].corr(df_votado["popularity"], method="spearman")
-    st.caption(f"Correlación de Spearman entre calificación y popularidad: **{corr:.2f}** "
-               "(cerca de 0 = relación débil). Solo títulos con al menos 1 voto.")
+    pares = df_votado[["vote_average", "popularity"]].dropna()
+    if len(pares) < 2 or (pares.nunique() < 2).any():
+        st.caption("Correlación de Spearman no disponible: se requieren al menos dos "
+                   "títulos con datos y variación en ambas variables.")
+    else:
+        corr = pares["vote_average"].corr(pares["popularity"], method="spearman")
+        st.caption(f"Correlación de Spearman: {corr:.2f}, calculada sobre {len(pares):,} "
+                   "títulos con votos y datos en ambas variables. Describe una asociación "
+                   "monótona, no una relación causal.")
 
 with tab2:
     # Promedios por género (solo géneros con suficientes títulos)
@@ -184,13 +207,16 @@ with tab2:
                      labels={"calificacion": "Calificación promedio", "genres": "Género"},
                      title=TITULO_BARRAS_CALIFICACION)
         st.plotly_chart(fig, width="stretch")
-    st.caption(f"Se incluyen géneros con al menos {MIN_TITULOS_GENERO} títulos con votos.")
+    st.caption(f"Ambos promedios utilizan géneros con al menos {MIN_TITULOS_GENERO} títulos con votos. "
+               "El KPI general de popularidad incluye todos los títulos filtrados; las poblaciones difieren.")
 
     # Treemap por volumen
     volumen = df_gen.groupby("genres").size().reset_index(name="titulos")
     fig = px.treemap(volumen, path=["genres"], values="titulos", color="titulos",
                      color_continuous_scale=ESCALA_CONTINUA, title=TITULO_TREEMAP)
     st.plotly_chart(fig, width="stretch")
+    st.caption("Un título puede pertenecer a varios géneros; la suma de categorías "
+               "no equivale necesariamente al total de títulos únicos.")
 
 with tab3:
     # Top 10 mejor evaluados con umbral mínimo de votos
@@ -212,25 +238,38 @@ with tab3:
         (c2, "cast", TITULO_TOP_ACTORES, "Actor/actriz"),
     ):
         base = separar(df, columna)
-        top = (base.groupby(columna)
-               .agg(titulos=("title", "count"), calificacion=("vote_average", "mean"))
-               .nlargest(TOP_N, "titulos").reset_index())
-        fig = px.bar(top.sort_values("titulos"), x="titulos", y=columna, orientation="h",
+        top = resumen_personas(base, columna).nlargest(TOP_N, "titulos")
+        if top.empty:
+            col_st.info(f"No hay datos de {etiqueta.lower()} para los filtros actuales.")
+            continue
+        evaluados = top[top["calificacion"].notna()].sort_values("titulos")
+        sin_evaluar = top[top["calificacion"].isna()].sort_values("titulos")
+        fig = px.bar(evaluados, x="titulos", y=columna, orientation="h",
                      color="calificacion", color_continuous_scale=ESCALA_CONTINUA,
+                     range_color=[0, 10], hover_data=["titulos_evaluados"],
                      labels={"titulos": "Cantidad de títulos", columna: etiqueta,
-                             "calificacion": "Calif. prom."},
-                     title=titulo)
+                             "calificacion": "Calif. con votos",
+                             "titulos_evaluados": "Títulos evaluados"}, title=titulo)
+        if not sin_evaluar.empty:
+            fig.add_bar(x=sin_evaluar["titulos"], y=sin_evaluar[columna],
+                        name="Sin evaluaciones", marker_color="#808080",
+                        hovertemplate="%{y}<br>Títulos: %{x}<br>Sin evaluaciones<extra></extra>")
+        fig.update_yaxes(categoryorder="array",
+                         categoryarray=top.sort_values("titulos")[columna].tolist())
         col_st.plotly_chart(fig, width="stretch")
-    st.caption("Los títulos sin director/reparto informado ('Sin dato') se excluyen de estos rankings.")
+    st.caption("El ranking cuenta todos los títulos con director/reparto informado. "
+               "El color promedia únicamente títulos con votos; gris indica ausencia "
+               "de evaluaciones. 'Sin dato' se excluye.")
 
 with tab4:
     # Mapa coroplético por país (métrica elegible)
     metrica = st.radio("Métrica del mapa", ["Calificación promedio", "Popularidad promedio"],
                        horizontal=True)
     col_metrica = "vote_average" if metrica.startswith("Calif") else "popularity"
-    por_pais = (df_pais_votado.groupby("country")
+    resumen_paises = (df_pais_votado.groupby("country")
                 .agg(titulos=("title", "count"), valor=(col_metrica, "mean"))
-                .query("titulos >= @MIN_TITULOS_PAIS").reset_index())
+                .reset_index())
+    por_pais = resumen_paises[resumen_paises["titulos"] >= MIN_TITULOS_PAIS].copy()
     por_pais["iso3"] = por_pais["country"].map(ISO3)
     mapa = por_pais.dropna(subset=["iso3"])
     fig = px.choropleth(mapa, locations="iso3", color="valor", hover_name="country",
@@ -242,6 +281,21 @@ with tab4:
     st.plotly_chart(fig, width="stretch")
     st.caption(f"Solo países con al menos {MIN_TITULOS_PAIS} títulos con votos "
                f"({len(mapa)} países en el mapa).")
+    sin_codigo = por_pais[por_pais["iso3"].isna()]
+    bajo_umbral = resumen_paises[resumen_paises["titulos"] < MIN_TITULOS_PAIS]
+    st.caption("Ambas métricas del mapa utilizan títulos con votos. Países con datos "
+               f"por debajo del umbral: {len(bajo_umbral)}. Países que cumplen el umbral "
+               f"pero no tienen código ISO-3: {len(sin_codigo)}.")
+    if not sin_codigo.empty:
+        with st.expander("Países que cumplen el umbral pero no aparecen en el mapa"):
+            st.dataframe(sin_codigo[["country", "titulos", "valor"]]
+                         .rename(columns={"country": "País", "titulos": "Títulos", "valor": metrica}),
+                         hide_index=True, width="stretch")
+    if not bajo_umbral.empty:
+        with st.expander("Países excluidos por cantidad insuficiente de títulos con votos"):
+            st.dataframe(bajo_umbral.rename(columns={"country": "País", "titulos": "Títulos",
+                                                     "valor": metrica}),
+                         hide_index=True, width="stretch")
     with st.expander("Ver tabla de países"):
         st.dataframe(mapa[["country", "titulos", "valor"]].sort_values("valor", ascending=False)
                      .rename(columns={"country": "País", "titulos": "Títulos", "valor": metrica}),
@@ -277,7 +331,14 @@ with tab5:
             f1.metric("Presupuesto promedio", formato_usd(df_fin["budget_valido"].mean()))
             f2.metric("Total ingresos", formato_usd(total_ingresos))
             f3.metric("Total presupuesto", formato_usd(total_presupuesto))
-            f4.metric("ROI aproximado", f"{roi_aproximado:.2f}x")
+            f4.metric("ROI agregado (razón de totales)", f"{roi_aproximado:.2f}x")
+            m1, m2 = st.columns(2)
+            m1.metric("ROI mediano por película", f"{df_fin['ROI'].median():.2f}x")
+            m2.metric("ROI promedio por película", f"{df_fin['ROI'].mean():.2f}x")
+            st.caption("El ROI agregado divide las sumas de ingresos y presupuesto; "
+                       "el promedio y la mediana resumen las razones individuales. "
+                       "Estos múltiplos no representan beneficio neto ni rentabilidad de StreamView. "
+                       "La cobertura parcial no garantiza representatividad del catálogo.")
             sin_recuperar = int((df_fin["ROI"] < 1).sum())
             st.caption(f"ROI aproximado = total de ingresos ÷ total de presupuesto. "
                        f"Mediana del ROI por película: {df_fin['ROI'].median():.2f}x. "
@@ -300,7 +361,7 @@ with tab5:
                             name="Ingresos = presupuesto", line=dict(dash="dash", color="gray"),
                             hoverinfo="skip")
             st.plotly_chart(fig, width="stretch")
-            st.caption("Sobre la línea punteada: la película ganó más de lo que costó. "
+            st.caption("Sobre la línea punteada: los ingresos informados superan el presupuesto de producción informado. "
                        "Debajo: no recuperó el presupuesto.")
 
             # Top películas por ingresos
