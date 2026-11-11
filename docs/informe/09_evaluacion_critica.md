@@ -259,25 +259,25 @@ dashboard existente, conservando sus filtros, pestañas, fuentes,
 paleta y reglas financieras.
 
 La validación comprendió revisión de sintaxis, pruebas con datos
-sintéticos de la función de agregación y comprobaciones visuales
-de la aplicación ejecutada localmente. Se recopilaron capturas
-de los escenarios revisados para documentar los indicadores,
-las notas explicativas y las respuestas de la aplicación ante
-selecciones particulares.
+sintéticos de la función de agregación y comprobaciones funcionales
+y visuales de la aplicación ejecutada localmente con los CSV
+procesados del proyecto.
 
-Se distingue entre la comprobación visual y funcional del
-dashboard y el contraste independiente de sus resultados con
-los CSV procesados. Las capturas permiten verificar lo mostrado
-por la aplicación, pero no sustituyen un recálculo independiente.
+Se recopilaron capturas de los escenarios revisados para documentar
+los indicadores, las notas explicativas y las respuestas de la
+aplicación ante distintas selecciones. Las comprobaciones permiten
+verificar el funcionamiento observado con los datos reales del
+proyecto, sin constituir una auditoría independiente de todos los
+cálculos.
 
 | Mejora | Cambio realizado | Validación | Estado |
 |---|---|---|---|
-| Contexto de popularidad y narrativa | Se incorporó una nota que distingue el índice TMDB de reproducciones, engagement y retención. Se revisó el notebook para retirar inferencias y recomendaciones que excedían la evidencia. | Las capturas muestran la advertencia de alcance en la aplicación. La revisión editorial y la ejecución sin errores del notebook corresponden a la comprobación local previamente registrada por el responsable. | Implementada; nota comprobada visualmente. Revisión editorial y ejecución local del notebook registradas por el responsable. |
-| Calificaciones de directores y actores | Se conserva el conteo total de títulos y se calcula la calificación únicamente con títulos con votos. Se informa por separado la cantidad de títulos evaluados. | Las pruebas sintéticas previamente realizadas verificaron el criterio de agregación. En el ranking de directores, el tooltip de Dominic Zapata muestra 21 títulos, 5 evaluados y calificación con votos de 8,4. En el ranking de actores, Min Do-yoon presenta 111 títulos, 80 evaluados y calificación con votos de aproximadamente 5,18. Las capturas corroboran la presentación diferenciada de estos valores. | Implementada; comprobación visual de ambos rankings y pruebas sintéticas registradas. El contraste independiente con los CSV no se realizó en esta revisión. |
-| Contexto de correlación | Se añadió el tamaño de muestra, la advertencia de no causalidad y el manejo de datos insuficientes o sin variación. | En la selección general se muestra Spearman de 0,32 sobre 27.431 títulos con votos y datos en ambas variables, junto con la explicación de que describe una asociación monótona y no una relación causal. Al fijar el rango de calificación en 8,00–8,00, se muestran 853 títulos filtrados y 851 con votos; la aplicación informa que la correlación no está disponible porque se requieren datos y variación en ambas variables, sin presentar un coeficiente numérico. | Implementada y comprobada visualmente en el escenario general y en el caso sin variación en la calificación. El caso específico de menos de dos observaciones no se comprobó por separado. |
-| Claridad financiera | Se diferenciaron el ROI agregado, la mediana y el promedio por película mediante etiquetas y tarjetas. Se aclaró el alcance de estas medidas y de la cobertura financiera. | Con los filtros generales se muestran ROI agregado de 2,92x, mediana de 1,70x y promedio de 4,29x, junto con una cobertura de 3.523 de 16.000 películas (22,0 %). La nota explica que el ROI agregado divide las sumas de ingresos y presupuesto, mientras que el promedio y la mediana resumen las razones individuales. También aclara que estos múltiplos no representan beneficio neto ni rentabilidad de StreamView y que la cobertura parcial no garantiza representatividad del catálogo. | Implementada y comprobada visualmente en sus etiquetas, valores y explicaciones. El contraste independiente de los cálculos con los CSV no se realizó en esta revisión. |
-| Transparencia del mapa | Se añadieron notas y tablas que distinguen exclusiones por mínimo de títulos y por falta de código ISO-3. Se explicitó que ambas métricas utilizan títulos con votos. | Se comprobó la presentación de calificación promedio y popularidad promedio. En la selección general se muestran 86 países representados, 60 por debajo del mínimo de 5 títulos con votos y 0 países que cumplen el mínimo pero carecen de código ISO-3. La tabla desplegada permite consultar países excluidos por cantidad insuficiente de títulos con votos. | Implementada y comprobada visualmente para ambas métricas y para las exclusiones por umbral. El escenario con países elegibles sin código ISO-3 no se observó y no se considera probado. |
-| Contexto de géneros | Se explicó la población utilizada en los promedios y la pertenencia de un título a varios géneros. | Se comprobó que la pestaña informa que ambos promedios utilizan géneros con al menos 30 títulos con votos, mientras que el KPI general de popularidad incluye todos los títulos filtrados. Bajo el treemap se aclara que un título puede pertenecer a varios géneros y que la suma de categorías no equivale necesariamente al total de títulos únicos. | Implementada; ambas notas y sus visualizaciones fueron comprobadas visualmente. |
+| Contexto de popularidad y narrativa | Se incorporó una nota que distingue el índice TMDB de reproducciones, engagement y retención. Se revisó el notebook para retirar inferencias y recomendaciones que excedían la evidencia. | Las capturas muestran la advertencia de alcance en la aplicación. La revisión editorial y la ejecución sin errores del notebook corresponden a la comprobación local previamente registrada por el responsable. | Implementada; nota comprobada visualmente. Revisión editorial y ejecución local del notebook completadas según el registro del responsable. |
+| Calificaciones de directores y actores | Se conserva el conteo total de títulos y se calcula la calificación únicamente con títulos con votos. Se informa por separado la cantidad de títulos evaluados. | Las pruebas sintéticas previamente realizadas verificaron el criterio de agregación. Con los CSV procesados cargados en el dashboard, el tooltip de Dominic Zapata muestra 21 títulos, 5 evaluados y calificación con votos de 8,4. En el ranking de actores, Min Do-yoon presenta 111 títulos, 80 evaluados y calificación con votos de aproximadamente 5,18. Las capturas corroboran la presentación diferenciada de estos valores. | Implementada; criterio de agregación comprobado mediante pruebas sintéticas y presentación de ambos rankings verificada con los datos reales del proyecto. |
+| Contexto de correlación | Se añadió el tamaño de muestra, la advertencia de no causalidad y el manejo de datos insuficientes o sin variación. | En la selección general se muestra Spearman de 0,32 sobre 27.431 títulos con votos y datos en ambas variables, junto con la explicación de que describe una asociación monótona y no una relación causal. Al fijar el rango de calificación en 8,00–8,00, se muestran 853 títulos filtrados y 851 con votos; la aplicación informa que la correlación no está disponible porque se requieren datos y variación en ambas variables, sin presentar un coeficiente numérico. | Implementada y comprobada funcional y visualmente en el escenario general y en el caso sin variación en la calificación. |
+| Claridad financiera | Se diferenciaron el ROI agregado, la mediana y el promedio por película mediante etiquetas y tarjetas. Se aclaró el alcance de estas medidas y de la cobertura financiera. | Con los CSV procesados y los filtros generales se muestran ROI agregado de 2,92x, mediana de 1,70x y promedio de 4,29x, junto con una cobertura de 3.523 de 16.000 películas (22,0 %). La nota explica que el ROI agregado divide las sumas de ingresos y presupuesto, mientras que el promedio y la mediana resumen las razones individuales. También aclara que estos múltiplos no representan beneficio neto ni rentabilidad de StreamView y que la cobertura parcial no garantiza representatividad del catálogo. | Implementada; indicadores, cobertura, etiquetas y explicaciones comprobados funcional y visualmente con los datos reales del proyecto. |
+| Transparencia del mapa | Se añadieron notas y tablas que distinguen exclusiones por mínimo de títulos y por falta de código ISO-3. Se explicitó que ambas métricas utilizan títulos con votos. | Se comprobó la presentación de calificación promedio y popularidad promedio. En la selección general se muestran 86 países representados, 60 por debajo del mínimo de 5 títulos con votos y 0 países que cumplen el mínimo pero carecen de código ISO-3. La tabla desplegada permite consultar países excluidos por cantidad insuficiente de títulos con votos. | Implementada y comprobada para ambas métricas y para las exclusiones por umbral. El escenario con países elegibles sin código ISO-3 no se observó con los datos revisados y no se considera probado. |
+| Contexto de géneros | Se explicó la población utilizada en los promedios y la pertenencia de un título a varios géneros. | Se comprobó que la pestaña informa que ambos promedios utilizan géneros con al menos 30 títulos con votos, mientras que el KPI general de popularidad incluye todos los títulos filtrados. Bajo el treemap se aclara que un título puede pertenecer a varios géneros y que la suma de categorías no equivale necesariamente al total de títulos únicos. | Implementada; ambas notas y sus visualizaciones fueron comprobadas visualmente con los datos reales del proyecto. |
 
 ### Pruebas de regresión
 
@@ -301,20 +301,23 @@ que se conservaran tras los ajustes:
 
 ### Alcance y limitaciones de la validación
 
-No se observaron errores visibles en las capturas de los
-escenarios documentados. Se corroboraron la presentación de
-los cambios, las notas de contexto, los detalles de los
-rankings, la alternancia de métricas del mapa y el manejo
-del caso de correlación sin variación.
+La validación funcional y visual se realizó sobre la aplicación
+ejecutada localmente con los CSV procesados del proyecto. Se
+comprobaron la presentación de los indicadores, las notas de
+contexto, los detalles de los rankings, la alternancia de métricas
+del mapa y el manejo del caso de correlación sin variación.
 
-Estas comprobaciones no constituyen una validación exhaustiva
-ni una auditoría independiente de los cálculos. El contraste
-de las calificaciones de directores y actores y de los
-indicadores financieros con los CSV procesados permanece
-pendiente. Tampoco se comprobó por separado el escenario de
-correlación con menos de dos observaciones.
+No se observaron errores visibles en los escenarios documentados.
+Estas comprobaciones verifican el funcionamiento observado con
+los datos reales del proyecto, pero no constituyen una auditoría
+independiente ni una validación exhaustiva de todos los cálculos
+y combinaciones de filtros.
+
+El escenario de correlación no calculable se comprobó mediante
+una selección con calificación constante. No se probó por separado
+el caso con menos de dos observaciones.
 
 Con los datos y filtros revisados no se presentó ningún país
 que cumpliera el mínimo de títulos con votos y careciera de
-código ISO-3. Por tanto, ese escenario se registra como no
-observado, sin atribuirle una prueba que no se realizó.
+código ISO-3. Ese escenario se registra como no observado,
+sin atribuirle una prueba que no se realizó.
