@@ -260,24 +260,61 @@ paleta y reglas financieras.
 
 La validación comprendió revisión de sintaxis, pruebas con datos
 sintéticos de la función de agregación y comprobaciones visuales
-de la aplicación ejecutada localmente.
+de la aplicación ejecutada localmente. Se recopilaron capturas
+de los escenarios revisados para documentar los indicadores,
+las notas explicativas y las respuestas de la aplicación ante
+selecciones particulares.
+
+Se distingue entre la comprobación visual y funcional del
+dashboard y el contraste independiente de sus resultados con
+los CSV procesados. Las capturas permiten verificar lo mostrado
+por la aplicación, pero no sustituyen un recálculo independiente.
 
 | Mejora | Cambio realizado | Validación | Estado |
 |---|---|---|---|
-| Contexto de popularidad y narrativa | Se incorporó una nota que distingue el índice TMDB de reproducciones, engagement y retención. Se revisó el notebook para retirar inferencias y recomendaciones que excedían la evidencia. | La nota se comprobó visualmente con ambos tipos de contenido y por separado. El notebook actualizado se ejecutó sin errores, según la comprobación local del responsable. | Implementada; revisión editorial y ejecución local completadas. |
-| Calificaciones de directores y actores | Se conserva el conteo de títulos y se calcula la calificación únicamente con títulos con votos. Se informa la cantidad de títulos evaluados. | Las pruebas sintéticas verificaron el criterio de agregación. En ejecución se comprobó la carga de los gráficos y el detalle de una barra con 21 títulos, 5 evaluados y calificación 8,4. | Implementada; comprobación visual y pruebas sintéticas satisfactorias. Pendiente contraste independiente con los CSV. |
-| Contexto de correlación | Se añadió el tamaño de muestra, la advertencia de no causalidad y el manejo de datos insuficientes o sin variación. | En la selección general se visualiza Spearman de 0,32 sobre 27.431 títulos y la explicación correspondiente. | Implementada y comprobada en el escenario general. El caso de correlación no calculable permanece pendiente. |
-| Claridad financiera | Se diferenciaron el ROI agregado, la mediana y el promedio por película mediante etiquetas y tarjetas. | Se visualizaron 2,92x, 1,70x y 4,29x, respectivamente, junto con la cobertura de 3.523 de 16.000 películas (22,0 %). | Implementada y comprobada visualmente. Pendiente contraste independiente de los cálculos con los CSV. |
-| Transparencia del mapa | Se añadieron notas y tablas que distinguen exclusiones por mínimo de títulos y por falta de código ISO-3. | Se comprobó la alternancia entre calificación y popularidad: 86 países representados, 60 bajo el umbral y ninguno sin código que cumpliera el mínimo. | Implementada y comprobada en ambas métricas para la selección general. El caso con países elegibles sin código no se presentó y no se considera probado. |
-| Contexto de géneros | Se explicó la población utilizada en los promedios y la pertenencia de un título a varios géneros. | Ambas notas y las visualizaciones se muestran en la pestaña Géneros. | Implementada y comprobada visualmente. |
+| Contexto de popularidad y narrativa | Se incorporó una nota que distingue el índice TMDB de reproducciones, engagement y retención. Se revisó el notebook para retirar inferencias y recomendaciones que excedían la evidencia. | Las capturas muestran la advertencia de alcance en la aplicación. La revisión editorial y la ejecución sin errores del notebook corresponden a la comprobación local previamente registrada por el responsable. | Implementada; nota comprobada visualmente. Revisión editorial y ejecución local del notebook registradas por el responsable. |
+| Calificaciones de directores y actores | Se conserva el conteo total de títulos y se calcula la calificación únicamente con títulos con votos. Se informa por separado la cantidad de títulos evaluados. | Las pruebas sintéticas previamente realizadas verificaron el criterio de agregación. En el ranking de directores, el tooltip de Dominic Zapata muestra 21 títulos, 5 evaluados y calificación con votos de 8,4. En el ranking de actores, Min Do-yoon presenta 111 títulos, 80 evaluados y calificación con votos de aproximadamente 5,18. Las capturas corroboran la presentación diferenciada de estos valores. | Implementada; comprobación visual de ambos rankings y pruebas sintéticas registradas. El contraste independiente con los CSV no se realizó en esta revisión. |
+| Contexto de correlación | Se añadió el tamaño de muestra, la advertencia de no causalidad y el manejo de datos insuficientes o sin variación. | En la selección general se muestra Spearman de 0,32 sobre 27.431 títulos con votos y datos en ambas variables, junto con la explicación de que describe una asociación monótona y no una relación causal. Al fijar el rango de calificación en 8,00–8,00, se muestran 853 títulos filtrados y 851 con votos; la aplicación informa que la correlación no está disponible porque se requieren datos y variación en ambas variables, sin presentar un coeficiente numérico. | Implementada y comprobada visualmente en el escenario general y en el caso sin variación en la calificación. El caso específico de menos de dos observaciones no se comprobó por separado. |
+| Claridad financiera | Se diferenciaron el ROI agregado, la mediana y el promedio por película mediante etiquetas y tarjetas. Se aclaró el alcance de estas medidas y de la cobertura financiera. | Con los filtros generales se muestran ROI agregado de 2,92x, mediana de 1,70x y promedio de 4,29x, junto con una cobertura de 3.523 de 16.000 películas (22,0 %). La nota explica que el ROI agregado divide las sumas de ingresos y presupuesto, mientras que el promedio y la mediana resumen las razones individuales. También aclara que estos múltiplos no representan beneficio neto ni rentabilidad de StreamView y que la cobertura parcial no garantiza representatividad del catálogo. | Implementada y comprobada visualmente en sus etiquetas, valores y explicaciones. El contraste independiente de los cálculos con los CSV no se realizó en esta revisión. |
+| Transparencia del mapa | Se añadieron notas y tablas que distinguen exclusiones por mínimo de títulos y por falta de código ISO-3. Se explicitó que ambas métricas utilizan títulos con votos. | Se comprobó la presentación de calificación promedio y popularidad promedio. En la selección general se muestran 86 países representados, 60 por debajo del mínimo de 5 títulos con votos y 0 países que cumplen el mínimo pero carecen de código ISO-3. La tabla desplegada permite consultar países excluidos por cantidad insuficiente de títulos con votos. | Implementada y comprobada visualmente para ambas métricas y para las exclusiones por umbral. El escenario con países elegibles sin código ISO-3 no se observó y no se considera probado. |
+| Contexto de géneros | Se explicó la población utilizada en los promedios y la pertenencia de un título a varios géneros. | Se comprobó que la pestaña informa que ambos promedios utilizan géneros con al menos 30 títulos con votos, mientras que el KPI general de popularidad incluye todos los títulos filtrados. Bajo el treemap se aclara que un título puede pertenecer a varios géneros y que la suma de categorías no equivale necesariamente al total de títulos únicos. | Implementada; ambas notas y sus visualizaciones fueron comprobadas visualmente. |
 
-También se realizaron dos pruebas de regresión sobre comportamientos
-preexistentes: con solo series, Finanzas informa la ausencia de datos
-financieros sin sustituirlos por cero; sin tipos de contenido
-seleccionados, se muestra un aviso sin construir indicadores ni
-gráficos.
+### Pruebas de regresión
 
-No se observaron errores visibles en los escenarios documentados.
-Estas comprobaciones no equivalen a una validación exhaustiva:
-permanecen pendientes el contraste de resultados con los CSV y
-los casos específicos indicados en la tabla.
+Se revisaron dos comportamientos preexistentes para comprobar
+que se conservaran tras los ajustes:
+
+- Solo series: en la prueba realizada por el responsable con
+  únicamente TV Show seleccionado, la pestaña Finanzas mostró
+  el aviso de que los datos financieros existen solo para
+  películas y solicitó incluir Movie para consultar el análisis.
+  No se mostraron tarjetas ni gráficos financieros con valores
+  sustituidos por cero. La captura documenta el aviso y la
+  ausencia del bloque financiero; el selector de tipo de
+  contenido quedó fuera del recorte.
+
+- Sin tipos de contenido seleccionados: se comprobó, con el
+  selector vacío visible en la captura, que la aplicación
+  muestra el aviso «Ningún título cumple los filtros
+  seleccionados. Amplía los rangos», sin presentar indicadores
+  ni gráficos.
+
+### Alcance y limitaciones de la validación
+
+No se observaron errores visibles en las capturas de los
+escenarios documentados. Se corroboraron la presentación de
+los cambios, las notas de contexto, los detalles de los
+rankings, la alternancia de métricas del mapa y el manejo
+del caso de correlación sin variación.
+
+Estas comprobaciones no constituyen una validación exhaustiva
+ni una auditoría independiente de los cálculos. El contraste
+de las calificaciones de directores y actores y de los
+indicadores financieros con los CSV procesados permanece
+pendiente. Tampoco se comprobó por separado el escenario de
+correlación con menos de dos observaciones.
+
+Con los datos y filtros revisados no se presentó ningún país
+que cumpliera el mínimo de títulos con votos y careciera de
+código ISO-3. Por tanto, ese escenario se registra como no
+observado, sin atribuirle una prueba que no se realizó.
