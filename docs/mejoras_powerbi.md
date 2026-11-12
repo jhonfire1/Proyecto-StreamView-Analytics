@@ -44,3 +44,17 @@ las secciones del informe y la presentación que lo utilicen.
 No es necesario agregar el bloque financiero de Streamlit al
 dashboard ejecutivo únicamente para igualar ambas herramientas:
 cada una mantiene su propósito y audiencia.
+
+
+#### Resultados de la revisión e implementación (Juan)
+
+| ID | Elemento | Estado | Hallazgo inicial y cambio aplicado |
+|---|---|---|---|
+| BI01 | Paleta | Ajustado y comprobado | En *Proporción del Catálogo: Películas vs Series*, TV Show usaba tono café/burdeo y *Presencia Global del Catálogo* usaba rojo/naranja. Se unificó la paleta: Movie en rojo (`#E50914`), TV Show en azul (`#1F77B4`) y barras de totales por país en verde neutro. El gráfico temporal ya mantenía rojo y azul. |
+| BI02 | Popularidad | Ajustado y comprobado | La tarjeta *Popularidad Promedio* (`42,63`) no aclaraba el alcance de la métrica. Se incorporó la nota visible *"Índice relativo TMDB"* para distinguirla de reproducciones o engagement reales. |
+| BI03 | Calificación | Ajustado y comprobado | La tarjeta *Calificación Promedio* (`5,69`) incluía los títulos con 0 votos, sesgando el promedio a la baja. Se aplicó el filtro visual `vote_count > 0` y se añadió la nota *"Títulos con votos (27.431)"*, elevando el indicador a `6,63` (consistente con Streamlit). |
+| BI04 | Visualización temporal | Ajustado y comprobado | El gráfico central se titulaba *"Evolución de Lanzamientos por Año"*, sugiriendo crecimiento histórico sobre una línea plana en 1.000. Se renombró a *"Distribución por Año de Estreno"* con el subtítulo *"Muestra estratificada (máx. 1.000 títulos/año por tipo; no es el crecimiento real)"*. |
+| BI05 | Países y géneros | Ajustado y comprobado | Los gráficos de barras de países y el treemap de géneros desglosaban categorías múltiples sin advertencia. Se añadieron subtítulos aclarando que un mismo título puede pertenecer a múltiples países o géneros y que la suma no equivale al total de títulos únicos. |
+| BI06 | Mapa | Ajustado y comprobado | El mapa *Alcance Geográfico del Catálogo* mostraba *"Cobertura global de producciones disponibles"* sin precisar el tratamiento de nulos. Se actualizó el subtítulo a *"Cobertura global por país de producción excluye registros 'Sin dato'"*. |
+| BI07 | Filtros y títulos | Verificado sin cambios | Se comprobó el funcionamiento de los segmentadores (Año Lanzamiento 2010–2025, Género y Tipo de contenido) y la coherencia de los títulos en todo el lienzo. |
+| BI08 | Fuentes | Ajustado y comprobado | Los orígenes de datos apuntaban a la ruta local de otro integrante (`c:\users\gpatr\...`). Se reconfiguraron `netflix_movies_cleaned.csv` y `netflix_tv_cleaned.csv` hacia la carpeta local `data\processed\` y se verificó su correcta actualización sin errores. |
