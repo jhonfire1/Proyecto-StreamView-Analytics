@@ -1,0 +1,20 @@
+# 10. Conclusiones y Recomendaciones
+
+## 10.1 Conclusiones principales
+
+El análisis exploratorio, la narrativa visual y los dashboards desarrollados en Power BI y Streamlit permiten sintetizar cuatro hallazgos fundamentales sobre el catálogo de StreamView (31.991 títulos: 16.000 películas y 15.991 series en el período 2010–2025):
+
+1. **Dispersión extrema en el retorno financiero y baja cobertura de datos:** Solo el 22,0 % de las películas (3.523 de 16.000) cuenta con registros financieros válidos (presupuesto e ingresos ≥ USD 1.000), y las series carecen por completo de información financiera en la fuente. Dentro de la muestra analizada, el ROI promedio por película alcanza 4,29x impulsado por éxitos atípicos (hasta 559x), mientras que la mediana se sitúa en 1,70x y el ROI agregado es de 2,92x. Además, un 36,6 % de las películas con datos financieros (1.289 títulos) no logra recuperar su presupuesto (ROI < 1).
+2. **Distinción crítica entre visibilidad externa y consumo interno:** La correlación de Spearman entre popularidad y calificación sobre los 27.431 títulos con votos es positiva pero débil-moderada (0,32). Dado que la popularidad corresponde a un índice relativo de TMDB y no a reproducciones ni retención dentro de StreamView, una alta visibilidad pública no garantiza satisfacción ni consumo sostenido.
+3. **Impacto metodológico de los registros sin votos:** Un 22,9 % de las series y un 5,6 % de las películas presentan 0 votos. Excluir estos registros corrige el sesgo a la baja en la valoración general del catálogo (elevando la calificación promedio en Power BI de 5,69 a 6,63) y evita subestimar la calidad percibida de las series evaluadas.
+4. **Complementariedad de las herramientas de visualización:** La separación entre un dashboard ejecutivo en Power BI (orientado al monitoreo estratégico y panorama global) y una aplicación analítica en Streamlit (enfocada en exploración financiera, correlaciones y rankings detallados) responde adecuadamente a los distintos niveles de toma de decisión de la organización.
+
+## 10.2 Recomendaciones por área de negocio
+
+| Audiencia / Área | Recomendación concreta | Evidencia que la respalda |
+|---|---|---|
+| **Directorio y Gerencia General** | Evaluar la rentabilidad de adquisición de películas utilizando la **mediana del ROI (1,70x)** y el **ROI agregado (2,92x)** como referencia base, evitando proyectar retornos a partir del promedio simple (4,29x). | La fuerte asimetría de los ingresos cinematográficos distorsiona el promedio; más de un tercio (36,6 %) de las películas analizadas registró pérdidas financieras. |
+| **Gerencia de Contenidos y Adquisición** | Priorizar la incorporación de títulos en nichos con **alta calificación y baja saturación** (ej. documentales, animación y producciones internacionales con buena recepción crítica) en lugar de concentrar presupuesto únicamente en géneros masivos como Drama o Comedia. | El análisis por género y país demuestra que categorías con menor volumen de oferta mantienen calificaciones promedio superiores a 7,0 puntos. |
+| **Marketing y Comunicación** | No asignar presupuesto promocional basándose exclusivamente en el índice de popularidad de TMDB; cruzar siempre la visibilidad externa con la **calificación y el volumen de votos** antes de impulsar campañas. | La correlación moderada-débil (0,32) confirma que existen títulos muy visibles con recepción mediocre y viceversa. |
+| **Producto y Plataforma** | Incorporar mecanismos internos de valoración y retroalimentación rápida para estrenos recientes, especialmente en series, con el fin de reducir el porcentaje de catálogo sin evaluación. | El 22,9 % de las series no registra votos en la fuente externa, limitando la capacidad de recomendación basada en calidad percibida. |
+| **Ingeniería y Ciencia de Datos** | Integrar **telemetría interna de StreamView** (reproducciones, tasa de finalización y retención) y ampliar la captura de costos de licencia para series y películas faltantes. | Actualmente solo el 22,0 % de las películas posee datos financieros y no se dispone de métricas reales de consumo interno de los usuarios. |

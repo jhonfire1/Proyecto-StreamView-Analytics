@@ -75,9 +75,7 @@ documentada desde la preparación de datos.
 Las funciones de carga, separación de campos multivalor, formatos
 y colores compartidos se centralizan en `src/utils.py`.
 
-La paleta distingue películas y series de forma consistente entre
-notebooks y Streamlit. Su correspondencia en Power BI forma parte
-de la revisión final del equipo.
+La paleta distingue películas (#E50914) y series (#1F77B4) de forma consistente entre notebooks, Streamlit y Power BI, tras la revisión y ajuste realizados en el cierre del proyecto.
 
 Los títulos, leyendas y notas explican unidades, poblaciones,
 escalas y criterios de inclusión. Las escalas logarítmicas se

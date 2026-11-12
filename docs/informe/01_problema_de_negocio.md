@@ -15,7 +15,7 @@ Hoy las decisiones sobre el catálogo se toman con **información parcial y sin 
 - ¿Qué películas tuvieron éxito con presupuestos reducidos?
 
 ## Visión estratégica asociada
-Los análisis del proyecto se vinculan con dos aspiraciones de la empresa: convertirse en la plataforma líder de la región ([ ] confirmar con el enunciado) y ofrecer una experiencia personalizada. El análisis muestra una fuerte concentración del catálogo en pocos géneros, países e idiomas (ver sección 5), lo que contrasta con esas aspiraciones.
+Los análisis del proyecto se vinculan con las aspiraciones de StreamView Analytics de fortalecer su propuesta de valor en el mercado de streaming y avanzar hacia una experiencia de contenido más personalizada. El diagnóstico evidencia una fuerte concentración del catálogo en pocos géneros, países e idiomas (ver Sección 5), lo que orienta la revisión del portafolio
 
 ## Solución propuesta
 Una solución de **Visual Analytics** con dos dashboards interactivos sobre los mismos datos limpios, uno por audiencia, más narrativas visuales (data storytelling) que conectan los hallazgos con decisiones concretas.

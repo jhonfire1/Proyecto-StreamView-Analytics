@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>StreamView Analytics · Entrega 3</title>
+<style>
+:root{--bg:#F7F4EE;--card:#FFFFFF;--tx:#1B2A41;--mu:#5B6677;--ac:#7A1F2B;--go:#B08D57;--ln:#DDD6C8;--bt:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14202F;--card:#1D2C40;--tx:#F3EEE3;--mu:#A9B3C2;--ac:#D98A94;--go:#D2B27A;--ln:#34465E;--bt:#14202F;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14202F;--card:#1D2C40;--tx:#F3EEE3;--mu:#A9B3C2;--ac:#D98A94;--go:#D2B27A;--ln:#34465E;--bt:#14202F;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:var(--bg);color:var(--tx);font-family:Georgia,'Times New Roman',serif}
+.s{display:none;height:100%;padding:5vh 7vw 10vh;flex-direction:column;justify-content:center;overflow-y:auto}.s.on{display:flex}
+h1{font-size:clamp(30px,5.5vw,56px);margin:0 0 12px;line-height:1.1}h2{font-size:clamp(22px,3.4vw,36px);margin:0 0 10px;border-bottom:2px solid var(--go);padding-bottom:8px}
+.k{font:600 12px/1 Arial,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--ac);margin-bottom:12px}
+p,li{font-size:clamp(15px,1.7vw,20px);line-height:1.45;margin:6px 0}.mu{color:var(--mu)}
+.g{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:12px}
+.c{background:var(--card);border:1px solid var(--ln);border-top:3px solid var(--ac);padding:13px 16px;border-radius:4px}
+.c b{display:block;font-size:clamp(22px,3vw,34px);color:var(--ac)}.c span{font:13px Arial,sans-serif;color:var(--mu)}
+.c h3{margin:0 0 5px;font-size:18px;color:var(--ac)}.c p,.c li{font-size:15px;margin:3px 0}ul{padding-left:19px;margin:4px 0}
+.bar{display:flex;height:32px;margin:12px 0 6px;border-radius:3px;overflow:hidden;font:600 13px Arial,sans-serif;color:#fff}.bar div{display:flex;align-items:center;justify-content:center}
+.n{font:600 20px Georgia,serif;margin:4px 0}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;padding:10px 7vw calc(10px + env(safe-area-inset-bottom,0px));font:13px Arial,sans-serif;color:var(--mu);background:var(--bg)}
+button{background:var(--ac);color:var(--bt);border:0;padding:8px 16px;border-radius:3px;font:600 13px Arial,sans-serif;cursor:pointer}
+</style></head><body>
+
+<section class="s on"><div class="k">ADY1104 · Visualización de Datos · Experiencia 3</div><h1>StreamView Analytics</h1><p class="mu" style="max-width:700px">Visual Analytics para la gestión y estrategia del catálogo audiovisual · 31.991 títulos (2010–2025)</p>
+<div style="margin-top:22px;border-top:2px solid var(--go);padding-top:14px"><div class="n">Benjamín Barrera</div><div class="n">Patrick Gonzalés</div><div class="n">Juan Villegas</div></div></section>
+
+<section class="s"><div class="k">Problema y objetivo</div><h2>Decidir sobre el catálogo con evidencia</h2>
+<p>La gerencia debe decidir qué adquirir, renovar o producir, pero los indicadores de volumen, popularidad, calificación y finanzas no están integrados ni adaptados a cada decisor.</p>
+<div class="g"><div class="c"><h3>Preguntas clave</h3><ul><li>¿Cómo se compone el catálogo?</li><li>¿Qué géneros y mercados priorizar?</li><li>¿Qué películas recuperaron su presupuesto?</li></ul></div><div class="c"><h3>Objetivo</h3><p>Una solución de Visual Analytics con dos dashboards, narrativa visual y evaluación crítica.</p></div></div></section>
+
+<section class="s"><div class="k">Datos y solución</div><h2>Una base limpia, dos dashboards</h2>
+<div class="g"><div class="c"><b>16.000</b><span>películas</span></div><div class="c"><b>15.991</b><span>series</span></div><div class="c"><b>22,0 %</b><span>películas con finanzas válidas</span></div><div class="c"><b>4.560</b><span>títulos sin votos</span></div></div>
+<div class="g"><div class="c"><h3>Power BI · ejecutivo</h3><p>Para Directorio y Gerencia General: KPIs, treemap, mapa y filtros. Informa de forma panorámica.</p></div><div class="c"><h3>Streamlit · analítico</h3><p>Para Contenidos y Adquisición: 5 pestañas y 6 filtros. Apoya la decisión de adquirir.</p></div></div></section>
+
+<section class="s"><div class="k">Análisis exploratorio</div><h2>Qué muestra el catálogo</h2>
+<div class="g"><div class="c"><h3>Composición</h3><p>≈ 50 % películas y series. Dominan Drama, Comedy y EE. UU.</p></div><div class="c"><h3>Calificación</h3><p>Series 7,02 vs. películas 6,31. Correlación con popularidad: 0,32 (débil).</p></div><div class="c"><h3>Finanzas</h3><p>ROI agregado 2,92x, mediana 1,70x, promedio 4,29x.</p></div></div>
+<div class="bar"><div style="width:36.6%;background:#7A1F2B">36,6 % &lt; 1x</div><div style="width:31.5%;background:#B08D57">31,5 % 1–3x</div><div style="width:31.9%;background:#1B2A41">31,9 % &gt; 3x</div></div>
+<p class="mu">ROI = ingresos / presupuesto, no beneficio neto.</p></section>
+
+<section class="s"><div class="k">Narrativa visual</div><h2>Cuatro preguntas, una historia</h2>
+<div class="g"><div class="c"><h3>¿Qué ocurre?</h3><p>Catálogo equilibrado y concentrado en pocos géneros y países.</p></div><div class="c"><h3>¿Por qué?</h3><p>La popularidad es un índice TMDB, no consumo en la plataforma.</p></div><div class="c"><h3>¿Qué evidencia?</h3><p>Correlación débil y 36,6 % de películas sin recuperar su presupuesto.</p></div><div class="c"><h3>¿Qué decisión?</h3><p>Combinar calificación, votos y popularidad; referenciar con la mediana.</p></div></div></section>
+
+<section class="s"><div class="k">Evaluación crítica y mejoras</div><h2>Sesgos detectados y corregidos</h2>
+<div class="g"><div class="c"><h3>Calificación</h3><p>Se excluyeron los títulos sin votos: el promedio en Power BI pasó de <b style="display:inline;font-size:inherit">5,69 a 6,63</b>.</p></div><div class="c"><h3>Contexto</h3><p>Notas sobre índice TMDB, muestra estratificada y cobertura financiera del 22 %.</p></div><div class="c"><h3>Interpretación</h3><p>Se retiraron afirmaciones causales y se separaron ROI agregado, mediano y promedio.</p></div><div class="c"><h3>Consistencia</h3><p>Paleta unificada y métricas iguales en Power BI y Streamlit.</p></div></div></section>
+
+<section class="s"><div class="k">Conclusiones y recomendaciones</div><h2>Qué hacer con la evidencia</h2>
+<div class="g"><div class="c"><h3>Directorio</h3><p>Usar la mediana (1,70x) y el ROI agregado (2,92x), no el promedio.</p></div><div class="c"><h3>Contenidos</h3><p>Revisar segmentos bien evaluados y menos saturados, validando con demanda interna.</p></div><div class="c"><h3>Marketing</h3><p>No promocionar solo por popularidad TMDB.</p></div><div class="c"><h3>Producto y Datos</h3><p>Valoración interna y telemetría de consumo y costos de licencia.</p></div></div></section>
+
+<nav><button onclick="go(-1)">← Anterior</button><span id="n">1 / 7</span><button onclick="go(1)">Siguiente →</button></nav>
+<script>
+var S=document.querySelectorAll('.s'),i=0;
+function go(d){S[i].classList.remove('on');i=Math.max(0,Math.min(S.length-1,i+d));S[i].classList.add('on');document.getElementById('n').textContent=(i+1)+' / '+S.length}
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+</script></body></html>
